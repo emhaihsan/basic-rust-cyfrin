@@ -42,16 +42,27 @@ Examples covered so far:
   - Run: `cargo run --example structs`
 - `match` — Pattern matching basics, exhaustiveness with `_`, multiple patterns `|`, ranges `..=`, bindings with `@`, matching `Option` and `Result`, and using `match` as an expression.
   - Run: `cargo run --example match`
-- `if_let` — Concise single-pattern matching for enums (e.g., `Option`, `Result`), with optional `else`.
+- `if_let` — Concise single-pattern matching for enums (like `Option`, `Result`) with optional `else` clause.
   - Run: `cargo run --example if_let`
-- `stack_heap` — Perbedaan Stack vs Heap; tipe tetap di stack (`i32`, `[T; N]`), tipe dinamis di heap (`String`, `Vec<T>`), metadata vs data.
+- `stack_heap` — Stack vs Heap: fixed-size types (`i32`, `[T; N]`) live on the stack; dynamic types (`String`, `Vec<T>`) store data on the heap; metadata vs data distinction.
   - Run: `cargo run --example stack_heap`
-- `ownership` — Tiga aturan ownership, move vs copy, drop saat keluar scope, fungsi mengambil ownership.
+- `ownership` — The three ownership rules, moves vs copies, dropping at end of scope, and functions taking ownership.
   - Run: `cargo run --example ownership`
-- `borrowing` — Borrowing & references (`&T`, `&mut T`), aturan kombinasi, NLL (borrow berakhir di pemakaian terakhir), fungsi yang meminjam.
+- `borrowing` — Borrowing and references (`&T`, `&mut T`), borrowing rules, non-lexical lifetimes (NLL), and functions that borrow.
   - Run: `cargo run --example borrowing`
-- `error_handling` — panic! untuk unrecoverable error, Option untuk nilai opsional (Some/None), Result untuk error recoverable (Ok/Err) + operator `?` dan custom error enum.
+- `error_handling` — `panic!` for unrecoverable errors, `Option` for optional values (`Some`/`None`), `Result` for recoverable errors (`Ok`/`Err`), use of the `?` operator, and custom error enums.
   - Run: `cargo run --example error_handling`
+- `unwrap_expect` — Using `unwrap()` and `expect()` on `Option`/`Result` for quick extraction or panicking with a custom message.
+  - Run: `cargo run --example unwrap_expect`
+- `question` — The question mark operator `?` for concise error propagation on `Result`/`Option`, including error conversion via `From`.
+  - Run: `cargo run --example question`
+- `mods` — Rust modules: `mod`, `pub`, nested modules, `super`/`crate` paths, and file/directory organization.
+- `bounds` — Trait bounds (`PartialOrd`, multiple bounds with `+`, where-clause), by-value vs by-ref.
+  - Run: `cargo run --example bounds`
+- `generic_traits` — Generic trait `List<T>`, concrete and generic impls, usage on tuples and vectors.
+  - Run: `cargo run --example generic_traits`
+- `lifetimes` — Explicit lifetimes on functions, struct with reference field, impl blocks, `'static`, and elision.
+  - Run: `cargo run --example lifetimes`
 
 ## Practice exercises
 
@@ -62,7 +73,7 @@ cd rust-crash-course/topics/<topic>/exercises
 cargo test
 ```
 
-Examples of completed topics include variables/functions, scalar types, tuples, arrays/slices, strings, enums, structs, vectors, hash maps, if/else, loops/for, and pattern matching.
+Examples of completed topics include variables/functions, scalar types, tuples, arrays/slices, strings, enums, structs, vectors, hash maps, if/else, loops/for, pattern matching, trait bounds, generic traits, and lifetimes.
 
 ## Prerequisites
 
@@ -73,3 +84,41 @@ Examples of completed topics include variables/functions, scalar types, tuples, 
 - Examples use standard library only.
 - Prints often rely on `#[derive(Debug)]` and the debug formatter (`{:?}` or `{:#?}`).
 - Safe patterns are preferred (e.g., `.get()` for vectors, explicit handling with `match`).
+
+## Iteration and Ownership: into_iter vs iter vs iter_mut
+
+In Rust, `for x in collection` desugars to `for x in collection.into_iter()`, which moves ownership of the collection into the iterator. For `Vec<T>`, this consumes the vector; using it again afterwards results in `E0382: use of moved value`.
+
+Minimal illustration (why a second loop fails):
+
+```rust
+let vals = vec![1, 2, 3];
+for v in vals { /* owns each T */ }
+// for v in vals { /* E0382: vals moved above */ }
+```
+
+To iterate without consuming, borrow with `.iter()` (immutable) or `.iter_mut()` (mutable):
+
+```rust
+let vals = vec![1, 2, 3];
+for v_ref in vals.iter() {           // v_ref: &i32
+    println!("{v_ref}");
+}
+for v_ref in vals.iter() {           // can borrow again immutably
+    println!("{v_ref}");
+}
+
+let mut vals2 = vec![1, 2, 3];
+for v_mut in vals2.iter_mut() {      // v_mut: &mut i32
+    *v_mut *= 2;
+}
+println!("{:?}", vals2); // [2, 4, 6]
+```
+
+Quick reference:
+
+- `into_iter(self)` → moves/consumes, yields `T`.
+- `iter(&self)` → borrows immutably, yields `&T`, can reuse/loop again.
+- `iter_mut(&mut self)` → borrows mutably, yields `&mut T`, can modify elements.
+
+Tip: If you need to access the collection after a loop, prefer `iter()` or `iter_mut()` explicitly instead of relying on the default `into_iter()` semantics of `for`.
