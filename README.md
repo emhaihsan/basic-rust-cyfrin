@@ -44,6 +44,12 @@ Examples covered so far:
   - Run: `cargo run --example match`
 - `if_let` — Concise single-pattern matching for enums (e.g., `Option`, `Result`), with optional `else`.
   - Run: `cargo run --example if_let`
+- `stack_heap` — Perbedaan Stack vs Heap; tipe tetap di stack (`i32`, `[T; N]`), tipe dinamis di heap (`String`, `Vec<T>`), metadata vs data.
+  - Run: `cargo run --example stack_heap`
+- `ownership` — Tiga aturan ownership, move vs copy, drop saat keluar scope, fungsi mengambil ownership.
+  - Run: `cargo run --example ownership`
+- `borrowing` — Borrowing & references (`&T`, `&mut T`), aturan kombinasi, NLL (borrow berakhir di pemakaian terakhir), fungsi yang meminjam.
+  - Run: `cargo run --example borrowing`
 
 ## Practice exercises
 
