@@ -63,6 +63,12 @@ Examples covered so far:
   - Run: `cargo run --example generic_traits`
 - `lifetimes` — Explicit lifetimes on functions, struct with reference field, impl blocks, `'static`, and elision.
   - Run: `cargo run --example lifetimes`
+- `async_hamburger` — Async sequential vs concurrent with Tokio (`join!`, `spawn`); demonstrates that futures are lazy and require `.await`.
+  - Run: `cargo run --example async_hamburger`
+- `threads_vs_async` — Comparison of native threads vs async/await (Tokio), including anti-patterns (blocking in a task) and the `spawn_blocking` solution.
+  - Run: `cargo run --example threads_vs_async`
+- `joinselect` — Demonstrates `tokio::join!` (wait for all) vs `tokio::select!` (first-wins + cancels others), including equal-time race and timeout pattern.
+  - Run: `cargo run --example joinselect`
 
 ## Practice exercises
 
@@ -81,7 +87,7 @@ Examples of completed topics include variables/functions, scalar types, tuples, 
 
 ## Notes
 
-- Examples use standard library only.
+- Most examples use the standard library only; `async_hamburger` uses the Tokio runtime.
 - Prints often rely on `#[derive(Debug)]` and the debug formatter (`{:?}` or `{:#?}`).
 - Safe patterns are preferred (e.g., `.get()` for vectors, explicit handling with `match`).
 
@@ -122,3 +128,19 @@ Quick reference:
 - `iter_mut(&mut self)` → borrows mutably, yields `&mut T`, can modify elements.
 
 Tip: If you need to access the collection after a loop, prefer `iter()` or `iter_mut()` explicitly instead of relying on the default `into_iter()` semantics of `for`.
+
+## Tokio Concurrency: join! vs select!
+
+- `join!`:
+  - Menjalankan beberapa future secara bersamaan dan menunggu semuanya selesai.
+  - Mengembalikan tuple hasil sesuai urutan argumen.
+  - Gunakan saat Anda butuh semua hasil (total waktu ≈ tugas paling lambat).
+- `select!`:
+  - Menjalankan beberapa future dan mengembalikan yang selesai pertama.
+  - Future lain langsung dibatalkan (hemat resource, cocok untuk race/timeout).
+  - Gunakan untuk mirror tercepat, fallback cepat, dan timeout (`select! { _ = sleep(dt) => ..., }`).
+
+Contoh runnable ada di `hello_rust/examples/joinselect.rs`:
+
+- Menunjukkan `join!` vs `select!`, tie-breaking (waktu sama), dan pola timeout.
+- Jalankan: `cargo run --example joinselect`.
