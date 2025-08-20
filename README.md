@@ -50,6 +50,8 @@ Examples covered so far:
   - Run: `cargo run --example ownership`
 - `borrowing` — Borrowing & references (`&T`, `&mut T`), aturan kombinasi, NLL (borrow berakhir di pemakaian terakhir), fungsi yang meminjam.
   - Run: `cargo run --example borrowing`
+- `error_handling` — panic! untuk unrecoverable error, Option untuk nilai opsional (Some/None), Result untuk error recoverable (Ok/Err) + operator `?` dan custom error enum.
+  - Run: `cargo run --example error_handling`
 
 ## Practice exercises
 
